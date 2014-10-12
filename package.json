@@ -1,0 +1,25 @@
+{
+  "name": "behalter",
+  "version": "0.0.1",
+  "description": "Simple container",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:muniere/node-behalter.git"
+  },
+  "author": "muniere",
+  "license": "MIT",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^1.21.5"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1"
+  }
+}
