@@ -83,6 +83,90 @@ describe('behalter', function() {
     });
   });
 
+  describe('#factory', function() {
+    it('sets factory function and gets a returned value', function() {
+      root.factory('myuser', function() {
+        return {
+          name: 'alice',
+          age: 18
+        };
+      });
+
+      // via method call
+      expect(root.factory('myuser')).to.eql({ name: 'alice', age: 18 });
+
+      // via getter (as property)
+      expect(root.myuser).to.eql({ name: 'alice', age: 18 });
+
+      // always fresh value
+      var val1 = root.myuser;
+      var val2 = root.myuser;
+
+      expect(val1).not.to.be(val2);
+    });
+
+    it('sets multiple factory at a once', function() {
+      root.factory({
+        user1: function() {
+          return {
+            name: 'alice',
+            age: 18
+          };
+        },
+        user2: function() {
+          return {
+            name: 'bob',
+            age: 20
+          };
+        }
+      });
+
+      expect(root.user1).to.eql({ name: 'alice', age: 18 });
+      expect(root.user2).to.eql({ name: 'bob',   age: 20 });
+    });
+
+    it('builds method chain', function() {
+      root
+        .factory('morning', function() {
+          return {
+            message: 'good morning'
+          };
+        })
+        .factory({
+          afternoon: function() {
+            return {
+              message: 'good afternoon'
+            };
+          },
+          night: function() {
+            return {
+              message: 'good night'
+            };
+          }
+        });
+
+      expect(root.morning.message).to.eql('good morning');
+      expect(root.afternoon.message).to.eql('good afternoon');
+      expect(root.night.message).eql('good night');
+    });
+
+    it('throws error when try to set with reserved name (case 1)', function() {
+      expect(root.factory).withArgs('value', 1).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 2)', function() {
+      expect(root.factory).withArgs('root', {}).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 3)', function() {
+      expect(root.factory).withArgs('parent', {}).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 3)', function() {
+      expect(root.factory).withArgs('child', {}).to.throwError(/reserved/);
+    });
+  });
+
   describe('#root', function() {
     it('returns root behalter (case 1)', function() {
       expect(root.root()).to.be(root);
