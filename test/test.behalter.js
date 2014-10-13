@@ -313,5 +313,68 @@ describe('behalter', function() {
       expect(root.execp(root.repeat, { message: 'hoge', repeatCount: 2 })).to.eql('hogehoge');
     });
   });
+
+  describe('#install', function() {
+    it('install a module with installer function', function() {
+      // module.exports = function() {};
+      var module = function() {
+        var behalter = this;
+
+        behalter.set({
+          hello: function(message) {
+            return message;
+          },
+          bye: function() {
+            return 'bye';
+          }
+        });
+      };
+
+      root.install(module);
+
+      expect(root.hello('hoge')).to.eql('hoge');
+      expect(root.bye()).to.eql('bye');
+    });
+
+    it('install a module with installer function with params', function() {
+      // module.exports = function(arg) {};
+      var module = function(arg) {
+        var behalter = this;
+
+        behalter.set({
+          greet: function() {
+            return arg;
+          }
+        });
+
+        root.install(module, 'hello, world');
+
+        expect(root.greet()).to.eql('hello, world');
+      };
+    });
+
+    it('install a module with installer object', function() {
+      // module.exports.install = function() {};
+      var module = {
+        install: function() {
+          var behalter = this;
+
+          behalter.set({
+            hello: function(message) {
+              return message;
+            },
+            bye: function() {
+              return 'bye';
+            }
+          });
+        }
+      };
+
+      root.install(module);
+
+      expect(root.hello('hoge')).to.eql('hoge');
+      expect(root.bye()).to.eql('bye');
+    });
+  });
 });
 
