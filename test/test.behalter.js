@@ -240,5 +240,78 @@ describe('behalter', function() {
       expect(forged.parent()).to.be(undefined);
     });
   });
+
+  describe('#exec', function() {
+    it('execute a function with injecting values set in behalter (case 1)', function() {
+      root.set({
+        repeat: function(message, repeatCount) {
+          var s = '';
+          _.times(repeatCount, function() {
+            s += message;
+          });
+          return s;
+        },
+        repeatCount: 5
+      });
+
+      expect(root.exec(root.repeat, 'hoge')).to.eql('hogehogehogehogehoge');
+    });
+
+    it('execute a function with injecting values set in behalter (case 2)', function() {
+      root.set({
+        message: {
+          find: function(id, user) {
+            var message = _.find([
+              { id: 1, uid: 'alice', body: 'message 1' },
+              { id: 2, uid: 'bob',   body: 'message 2' }
+            ], { id: id });
+
+            message.user = user.find(message.uid);
+
+            return message;
+          }
+        },
+        user: {
+          find: function(id) {
+            return _.find([
+              { id: 'alice', age: 18 },
+              { id: 'bob',   age: 20 }
+            ], { id: id });
+          }
+        }
+      });
+
+      var actual = root.exec(root.message.find, 1);
+      var expected = {
+        id: 1,
+        uid: 'alice',
+        body: 'message 1',
+        user: {
+          id: 'alice',
+          age: 18
+        }
+      };
+
+      expect(actual).to.eql(expected);
+    });
+  });
+
+  describe('#execp', function() {
+    it('execute a function with overriding injecting values (case 1)', function() {
+      root.set({
+        repeat: function(message, repeatCount) {
+          var s = '';
+          _.times(repeatCount, function() {
+            s += message;
+          });
+          return s;
+        },
+        repeatCount: 5
+      });
+
+      expect(root.execp(root.repeat, { message: 'hoge' })).to.eql('hogehogehogehogehoge');
+      expect(root.execp(root.repeat, { message: 'hoge', repeatCount: 2 })).to.eql('hogehoge');
+    });
+  });
 });
 
