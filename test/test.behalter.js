@@ -83,6 +83,22 @@ describe('behalter', function() {
     });
   });
 
+  describe('#get', function() {
+    it('is alias of #value', function() {
+      root.value('myname', 'alice');
+
+      expect(root.get('myname')).to.eql('alice');
+    });
+  });
+
+  describe('#set', function() {
+    it('is alias of #value', function() {
+      root.set('myname', 'alice');
+
+      expect(root.myname).to.eql('alice');
+    });
+  });
+
   describe('#factory', function() {
     it('sets factory function and gets a returned value', function() {
       root.factory('myuser', function() {
