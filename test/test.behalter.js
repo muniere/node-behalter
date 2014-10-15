@@ -66,6 +66,62 @@ describe('behalter', function() {
       expect(root.friends).eql([ 'bob', 'charlie' ]);
     });
 
+    it('get a value from parent when not found in behalter itself', function() {
+      var url = require('url');
+
+      var $conf = root.child('config').value({
+        ip: '127.0.0.1',
+        port: 3000,
+        protocol: 'http'
+      });
+
+      var $srvc = root.child('service').value({
+        url: {
+          host: function() {
+            // `config` can get via root
+            return $srvc.config.ip + ':' + $srvc.config.port
+          }
+        }
+      });
+
+      var $ctrl = root.child('controller').value({
+        info: {
+          index: function() {
+            // `config` and `service` can get via root
+            return url.format({
+              protocol: $ctrl.config.protocol,
+              host: $ctrl.service.url.host(),
+              pathname: '/'
+            });
+          }
+        }
+      });
+
+      // get value from itself
+      expect($conf.ip).to.eql('127.0.0.1');
+
+      // get value from child
+      expect(root.config.ip).to.eql('127.0.0.1');
+
+      // get value via root
+      expect($srvc.config.ip).to.eql('127.0.0.1');
+      expect($ctrl.config.ip).to.eql('127.0.0.1');
+
+      // get and call function from root
+      expect(root.controller.info.index()).to.be('http://127.0.0.1:3000/');
+
+      // get and call function via root
+      expect($ctrl.info.index()).to.eql('http://127.0.0.1:3000/');
+
+      // cannot access other behalter's values which cannot access from root
+
+      // srvc -> ctrl
+      expect($srvc.info).to.eql(undefined);
+
+      // ctrl -> srvc
+      expect($ctrl.url).to.eql(undefined);
+    });
+
     it('throws error when try to set with reserved name (case 1)', function() {
       expect(root.value).withArgs('value', 1).to.throwError(/reserved/);
     });
