@@ -367,7 +367,7 @@ describe('behalter', function() {
     });
   });
 
-  describe('#exec', function() {
+  describe('#call', function() {
     it('execute a function with injecting values set in behalter (case 1)', function() {
       root.set({
         repeat: function(message, repeatCount) {
@@ -380,7 +380,7 @@ describe('behalter', function() {
         repeatCount: 5
       });
 
-      expect(root.exec(root.repeat, 'hoge')).to.eql('hogehogehogehogehoge');
+      expect(root.call(root.repeat, 'hoge')).to.eql('hogehogehogehogehoge');
     });
 
     it('execute a function with injecting values set in behalter (case 2)', function() {
@@ -407,7 +407,7 @@ describe('behalter', function() {
         }
       });
 
-      var actual = root.exec(root.message.find, 1);
+      var actual = root.call(root.message.find, 1);
       var expected = {
         id: 1,
         uid: 'alice',
@@ -422,7 +422,7 @@ describe('behalter', function() {
     });
   });
 
-  describe('#execp', function() {
+  describe('#callp', function() {
     it('execute a function with overriding injecting values (case 1)', function() {
       root.set({
         repeat: function(message, repeatCount) {
@@ -435,8 +435,8 @@ describe('behalter', function() {
         repeatCount: 5
       });
 
-      expect(root.execp(root.repeat, { message: 'hoge' })).to.eql('hogehogehogehogehoge');
-      expect(root.execp(root.repeat, { message: 'hoge', repeatCount: 2 })).to.eql('hogehoge');
+      expect(root.callp(root.repeat, { message: 'hoge' })).to.eql('hogehogehogehogehoge');
+      expect(root.callp(root.repeat, { message: 'hoge', repeatCount: 2 })).to.eql('hogehoge');
     });
   });
 
