@@ -5,7 +5,7 @@ var $ = require('../');
 var _ = require('lodash');
 var expect = require('expect.js');
 
-describe('behalter', function() {
+describe('Behalter', function() {
 
   var root;
   beforeEach(function() {
@@ -79,7 +79,7 @@ describe('behalter', function() {
         url: {
           host: function() {
             // `config` can get via root
-            return $srvc.config.ip + ':' + $srvc.config.port
+            return $srvc.config.ip + ':' + $srvc.config.port;
           }
         }
       });
@@ -506,6 +506,95 @@ describe('behalter', function() {
 
       expect(root.hello('hoge')).to.eql('hoge');
       expect(root.bye()).to.eql('bye');
+    });
+  });
+
+  describe('#emit', function() {
+    it('fires event listeners configured with #on (case 1)', function() {
+      var count = 0;
+
+      root.on('hoge', function() {
+        count += 1;
+      });
+
+      // multiple emit for single handler
+      root.emit('hoge');
+      root.emit('hoge');
+
+      expect(count).to.be(2);
+    });
+
+    it('fires event listeners configured with #on (case 2)', function() {
+      var count = 0;
+
+      root.on('foo', function() {
+        count += 1; 
+      });
+      root.on('foo', function() {
+        count += 2;
+      });
+
+      // single emit for multiple handlers
+      root.emit('foo');
+
+      expect(count).to.be(3);
+    });
+
+    it('fires event listeners configured with #on and #off', function() {
+      var count = 0;
+
+      var handler = function() {
+        count += 1;
+      };
+
+      // on
+      root.on('hoge', handler);
+
+      root.emit('hoge');
+
+      expect(count).to.be(1);
+
+      // off
+      root.off('hoge', handler);
+
+      root.emit('hoge');
+
+      expect(count).to.be(1);
+    });
+
+    it('fires event listeners configured with #once', function() {
+      var count = 0;
+
+      root.once('bar', function() {
+        count += 1;
+      });
+
+      root.emit('bar');
+      root.emit('bar');
+
+      expect(count).to.be(1);
+    });
+
+    it('fires event listeners with injecting values', function() {
+      root.set({
+        user: {
+          find: function(id) {
+            return _.find([
+              { id: 1, name: 'Alice'  },
+              { id: 2, name: 'Bob'    },
+              { id: 3, name: 'Charlie'} 
+            ], { id: id });
+          }
+        }
+      });
+
+      root.on('user.find', function(user, id) {
+        expect(user.find(id).id).to.eql(id);
+      });
+
+      root.emit('user.find', 1);
+      root.emit('user.find', 2);
+      root.emit('user.find', 3);
     });
   });
 });
