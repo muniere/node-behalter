@@ -420,6 +420,12 @@ describe('behalter', function() {
 
       expect(actual).to.eql(expected);
     });
+
+    it('execute a function with no args when function requires no arguments', function() {
+      root.call(function() {
+        expect(arguments.length).to.eql(0);
+      });
+    });
   });
 
   describe('#callp', function() {
