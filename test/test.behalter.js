@@ -5,7 +5,7 @@ var $ = require('../');
 var _ = require('lodash');
 var expect = require('expect.js');
 
-describe('behalter', function() {
+describe('Behalter', function() {
 
   var root;
   beforeEach(function() {
@@ -79,7 +79,7 @@ describe('behalter', function() {
         url: {
           host: function() {
             // `config` can get via root
-            return $srvc.config.ip + ':' + $srvc.config.port
+            return $srvc.config.ip + ':' + $srvc.config.port;
           }
         }
       });
@@ -297,7 +297,7 @@ describe('behalter', function() {
     });
   });
 
-  describe('#exec', function() {
+  describe('#apply', function() {
     it('execute a function with injecting values set in behalter (case 1)', function() {
       root.set({
         repeat: function(message, repeatCount) {
@@ -310,7 +310,7 @@ describe('behalter', function() {
         repeatCount: 5
       });
 
-      expect(root.exec(root.repeat, 'hoge')).to.eql('hogehogehogehogehoge');
+      expect(root.apply(root.repeat, ['hoge'])).to.eql('hogehogehogehogehoge');
     });
 
     it('execute a function with injecting values set in behalter (case 2)', function() {
@@ -337,7 +337,7 @@ describe('behalter', function() {
         }
       });
 
-      var actual = root.exec(root.message.find, 1);
+      var actual = root.apply(root.message.find, [1]);
       var expected = {
         id: 1,
         uid: 'alice',
@@ -350,9 +350,85 @@ describe('behalter', function() {
 
       expect(actual).to.eql(expected);
     });
+
+    it('throws error if args is not an array', function() {
+      root.set({
+        repeat: function(message, repeatCount) {
+          var s = '';
+          _.times(repeatCount, function() {
+            s += message;
+          });
+          return s;
+        },
+        repeatCount: 5
+      });
+
+      expect(root.apply).withArgs(root.repeat, 'hoge').to.throwError();
+    });
   });
 
-  describe('#execp', function() {
+  describe('#call', function() {
+    it('execute a function with injecting values set in behalter (case 1)', function() {
+      root.set({
+        repeat: function(message, repeatCount) {
+          var s = '';
+          _.times(repeatCount, function() {
+            s += message;
+          });
+          return s;
+        },
+        repeatCount: 5
+      });
+
+      expect(root.call(root.repeat, 'hoge')).to.eql('hogehogehogehogehoge');
+    });
+
+    it('execute a function with injecting values set in behalter (case 2)', function() {
+      root.set({
+        message: {
+          find: function(id, user) {
+            var message = _.find([
+              { id: 1, uid: 'alice', body: 'message 1' },
+              { id: 2, uid: 'bob',   body: 'message 2' }
+            ], { id: id });
+
+            message.user = user.find(message.uid);
+
+            return message;
+          }
+        },
+        user: {
+          find: function(id) {
+            return _.find([
+              { id: 'alice', age: 18 },
+              { id: 'bob',   age: 20 }
+            ], { id: id });
+          }
+        }
+      });
+
+      var actual = root.call(root.message.find, 1);
+      var expected = {
+        id: 1,
+        uid: 'alice',
+        body: 'message 1',
+        user: {
+          id: 'alice',
+          age: 18
+        }
+      };
+
+      expect(actual).to.eql(expected);
+    });
+
+    it('execute a function with no args when function requires no arguments', function() {
+      root.call(function() {
+        expect(arguments.length).to.eql(0);
+      });
+    });
+  });
+
+  describe('#callp', function() {
     it('execute a function with overriding injecting values (case 1)', function() {
       root.set({
         repeat: function(message, repeatCount) {
@@ -365,8 +441,8 @@ describe('behalter', function() {
         repeatCount: 5
       });
 
-      expect(root.execp(root.repeat, { message: 'hoge' })).to.eql('hogehogehogehogehoge');
-      expect(root.execp(root.repeat, { message: 'hoge', repeatCount: 2 })).to.eql('hogehoge');
+      expect(root.callp(root.repeat, { message: 'hoge' })).to.eql('hogehogehogehogehoge');
+      expect(root.callp(root.repeat, { message: 'hoge', repeatCount: 2 })).to.eql('hogehoge');
     });
   });
 
@@ -430,6 +506,95 @@ describe('behalter', function() {
 
       expect(root.hello('hoge')).to.eql('hoge');
       expect(root.bye()).to.eql('bye');
+    });
+  });
+
+  describe('#emit', function() {
+    it('fires event listeners configured with #on (case 1)', function() {
+      var count = 0;
+
+      root.on('hoge', function() {
+        count += 1;
+      });
+
+      // multiple emit for single handler
+      root.emit('hoge');
+      root.emit('hoge');
+
+      expect(count).to.be(2);
+    });
+
+    it('fires event listeners configured with #on (case 2)', function() {
+      var count = 0;
+
+      root.on('foo', function() {
+        count += 1; 
+      });
+      root.on('foo', function() {
+        count += 2;
+      });
+
+      // single emit for multiple handlers
+      root.emit('foo');
+
+      expect(count).to.be(3);
+    });
+
+    it('fires event listeners configured with #on and #off', function() {
+      var count = 0;
+
+      var handler = function() {
+        count += 1;
+      };
+
+      // on
+      root.on('hoge', handler);
+
+      root.emit('hoge');
+
+      expect(count).to.be(1);
+
+      // off
+      root.off('hoge', handler);
+
+      root.emit('hoge');
+
+      expect(count).to.be(1);
+    });
+
+    it('fires event listeners configured with #once', function() {
+      var count = 0;
+
+      root.once('bar', function() {
+        count += 1;
+      });
+
+      root.emit('bar');
+      root.emit('bar');
+
+      expect(count).to.be(1);
+    });
+
+    it('fires event listeners with injecting values', function() {
+      root.set({
+        user: {
+          find: function(id) {
+            return _.find([
+              { id: 1, name: 'Alice'  },
+              { id: 2, name: 'Bob'    },
+              { id: 3, name: 'Charlie'} 
+            ], { id: id });
+          }
+        }
+      });
+
+      root.on('user.find', function(user, id) {
+        expect(user.find(id).id).to.eql(id);
+      });
+
+      root.emit('user.find', 1);
+      root.emit('user.find', 2);
+      root.emit('user.find', 3);
     });
   });
 });
