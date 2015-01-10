@@ -3,6 +3,7 @@
 
 var $ = require('../../index');
 var _ = require('lodash');
+var path = require('path');
 var expect = require('expect.js');
 
 describe('Behalter', function() {
@@ -506,6 +507,24 @@ describe('Behalter', function() {
 
       expect(root.hello('hoge')).to.eql('hoge');
       expect(root.bye()).to.eql('bye');
+    });
+
+    it('install a module from file path', function() {
+
+      root.install(path.join(__dirname, '../fixt/mod1.js'));
+      root.install(path.join(__dirname, '../fixt/mod2.js'));
+
+      expect(root.mod1).to.eql({ name: 'module-1' });
+      expect(root.mod2).to.eql({ name: 'module-2' });
+    });
+
+    it('install a module from directory path', function() {
+
+      root.install(path.join(__dirname, '../fixt/submod'));
+
+      expect(root.submod1).to.eql({ name: 'submodule-1' });
+      expect(root.submod2).to.eql({ name: 'submodule-2' });
+      expect(root.submod3).to.eql({ name: 'submodule-3' });
     });
   });
 
