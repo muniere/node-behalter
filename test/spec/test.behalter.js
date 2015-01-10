@@ -1,7 +1,7 @@
 /* global describe, it, beforeEach */
 'use strict';
 
-var $ = require('../');
+var $ = require('../../index');
 var _ = require('lodash');
 var expect = require('expect.js');
 

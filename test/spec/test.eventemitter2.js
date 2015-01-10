@@ -3,7 +3,7 @@
 
 var _ = require('lodash');
 var expect = require('expect.js');
-var EventEmitter2 = require('../lib/eventemitter2').EventEmitter2;
+var EventEmitter2 = require('../../lib/eventemitter2').EventEmitter2;
 
 describe('EventEmitter2', function() {
 
