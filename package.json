@@ -3,11 +3,8 @@
   "version": "0.1.0",
   "description": "Simple container",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha ./test/spec/*"
   },
   "repository": {
     "type": "git",
