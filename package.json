@@ -10,7 +10,10 @@
     "type": "git",
     "url": "git@github.com:muniere/node-behalter.git"
   },
-  "author": "muniere",
+  "author": {
+    "name": "Hiromune Ikeda",
+    "email": "muniere.fujiwara@gmail.com"
+  },
   "license": "MIT",
   "devDependencies": {
     "expect.js": "^0.3.1",

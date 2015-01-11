@@ -16,10 +16,10 @@ $ npm install behalter
 
 ```javascript
 // global behalter
-var $ = require('behalter');
+var behalter = require('behalter');
 
 // global scope
-$.value({
+behalter.value({
   protocol: 'http',
   hostname: 'myhost.mydomain',
   port: 3000,
@@ -27,7 +27,7 @@ $.value({
 });
 
 // child scope
-$.child('user')
+behalter.child('user')
   .set({
     findById: function(id, callback) {
       // code to find a user
@@ -40,10 +40,10 @@ $.child('user')
     }
   });
 
-console.log($.protocol); // => 'http'
-console.log($.port);     // => 3000
+console.log(behalter.protocol); // => 'http'
+console.log(behalter.port);     // => 3000
 
-$.user.findById('alice', function(err, user) {
+behalter.user.findById('alice', function(err, user) {
   if (err) {
     console.error(err);
   }
@@ -55,10 +55,10 @@ $.user.findById('alice', function(err, user) {
 
 ```javascript
 // global behalter
-var $ = require('behalter');
+var behalter = require('behalter');
 
 var seq = 1;
-$.factory({
+behalte.factory({
   sequence: function() {
     return seq++;
   },
@@ -67,13 +67,13 @@ $.factory({
   }
 });
 
-console.log($.sequence); // => 1
-console.log($.sequence); // => 2
+console.log(behalter.sequence); // => 1
+console.log(behalter.sequence); // => 2
 
-var fixt1 = $.fixture;
+var fixt1 = behalter.fixture;
 fixt1.push('charlie');
 
-var fixt2 = $.fixture;
+var fixt2 = behalter.fixture;
 fixt2.push('dave');
 
 console.log(fixt1); // => ['alice', 'bob', 'charlie']
@@ -95,10 +95,10 @@ module.exports = function() {
 };
 
 // app.js
-var $ = require('behalter');
+var behalter = require('behalter');
 
-$.child('service')
+behalter.child('service')
   .install(require('mymodule'));
 
-$.service.mymodule.hello(); // => 'hello'
+behalter.service.mymodule.hello(); // => 'hello'
 ```
