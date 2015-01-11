@@ -128,15 +128,31 @@ describe('Behalter', function() {
     });
 
     it('throws error when try to set with reserved name (case 2)', function() {
+      expect(root.value).withArgs('factory', function() {}).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 3)', function() {
       expect(root.value).withArgs('root', {}).to.throwError(/reserved/);
     });
 
-    it('throws error when try to set with reserved name (case 3)', function() {
+    it('throws error when try to set with reserved name (case 4)', function() {
       expect(root.value).withArgs('parent', {}).to.throwError(/reserved/);
     });
 
-    it('throws error when try to set with reserved name (case 3)', function() {
+    it('throws error when try to set with reserved name (case 5)', function() {
       expect(root.value).withArgs('child', {}).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 6)', function() {
+      expect(root.value).withArgs('exec', function() {}).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 7)', function() {
+      expect(root.value).withArgs('install', function() {}).to.throwError(/reserved/);
+    });
+
+    it('throws error when try to set with reserved name (case 8)', function() {
+      expect(root.value).withArgs('length', 3).to.throwError(/reserved/);
     });
   });
 
