@@ -256,6 +256,27 @@ describe('Behalter', function() {
     });
   });
 
+  describe('#getOption', function() {
+
+    it('gets option value', function() {
+      // default values
+      expect(root.getOption('useGetter')).to.be(true);
+      expect(root.getOption('useSetter')).to.be(false);
+    });
+  });
+
+  describe('#setOption', function() {
+
+    it('sets option value', function() {
+      // inverse
+      root.setOption('useGetter', false);
+      root.setOption('useSetter', true);
+
+      expect(root.getOption('useGetter')).to.be(false);
+      expect(root.getOption('useSetter')).to.be(true);
+    });
+  });
+
   describe('#root', function() {
     it('returns root behalter (case 1)', function() {
       expect(root.root()).to.be(root);
@@ -631,6 +652,60 @@ describe('Behalter', function() {
       root.emit('user.find', 2);
       root.emit('user.find', 3);
     });
+  });
+
+  it('cannot access value as property if useGetter is false', function() {
+
+    root.setOption('useGetter', false);
+
+    root.value('myname', 'alice');
+
+    // try access: failure
+    expect(root.myname).to.be(undefined);
+  });
+
+  it('cannot assign value or factory if useSetter is false', function() {
+
+    root.setOption('useSetter', false);
+
+    root.value('myname', 'alice');
+    root.factory('myuser', function() {
+      return { name: 'bob', age: 18 };
+    });
+
+    expect(root.myname).to.eql('alice');
+    expect(root.myuser).to.eql({ name: 'bob', age: 18 });
+
+    // try assign: failure
+    root.myname = 'charlie';
+    root.myuser = function() {
+      return { name: 'dave', age: 20 };
+    };
+
+    expect(root.myname).to.eql('alice');
+    expect(root.myuser).to.eql({ name: 'bob', age: 18 });
+  });
+
+  it('can assign value or factory if useSetter is true', function() {
+
+    root.setOption('useSetter', true);
+
+    root.value('myname', 'alice');
+    root.factory('myuser', function() {
+      return { name: 'bob', age: 18 };
+    });
+
+    // try assign: success
+    expect(root.myname).to.eql('alice');
+    expect(root.myuser).to.eql({ name: 'bob', age: 18 });
+
+    root.myname = 'charlie';
+    root.myuser = function() {
+      return { name: 'dave', age: 20 };
+    };
+
+    expect(root.myname).to.eql('charlie');
+    expect(root.myuser).to.eql({ name: 'dave', age: 20 });
   });
 });
 
